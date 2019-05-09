@@ -1,2 +1,0 @@
-/data/llvm_master/Kaleidoscope/CMakeFiles/rebuild_cache.dir
-/data/llvm_master/Kaleidoscope/CMakeFiles/edit_cache.dir

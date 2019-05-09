@@ -1,0 +1,3 @@
+/data/llvm_master/Kaleidoscope/build/CMakeFiles/rebuild_cache.dir
+/data/llvm_master/Kaleidoscope/build/CMakeFiles/Toy.dir
+/data/llvm_master/Kaleidoscope/build/CMakeFiles/edit_cache.dir
