@@ -12,6 +12,12 @@
 // Lexer
 //== ---------==//
 
+// The lexer return tokens [0-255] if
+// it is an unknown character, otherwise
+// one of these for known things.
+
+// The character set for this Kaleidoscope compile is ASCII.
+
 enum Token {
             tok_eof = -1,
             tok_def = -2,
@@ -23,10 +29,17 @@ enum Token {
 static std::string IdentifierStr; //Filled in if tok_identifier
 static double NumVal; //Filled in if tok_number
 
+
+// gettok - Return the next token from standard input.
 static int gettok() {
   static int LastChar = ' ';
-
+  // Skip any whitespace.
   while(isspace(LastChar))
+    // the C getchar() function to read characters one
+    // at a time from standard input.
+    // It eats them as it recognize them and stores
+    // the last character read, but not processed, in
+    // LastChar.
     LastChar = getchar();
 
   if (isalpha(LastChar)) {
@@ -61,9 +74,12 @@ static int gettok() {
       return gettok();
   }
 
+  // Check for end of file.
+  // Don't eat the EOF.
   if (LastChar == EOF)
     return tok_eof;
 
+  // Otherwise, just return the character as its ASCII value.
   int ThisChar = LastChar;
   LastChar = getchar();
   return ThisChar;
@@ -72,12 +88,13 @@ static int gettok() {
 
 
 namespace {
-
+  /// ExprAST - Base class for all expression nodes.
   class ExprAST {
   public:
     virtual ~ExprAST() = default;
   };
 
+  /// NumberExprAST - Expression class for numeric literals like "1.0".
   class NumberExprAST : public ExprAST {
     double Val;
 
@@ -85,6 +102,8 @@ namespace {
     NumberExprAST(double Val) : Val(Val) {}
   };
 
+
+  /// VariableExprAST - Expression class for referencing a variable, like "a".
   class VariableExprAST : public ExprAST {
     std::string Name;
 
@@ -92,6 +111,8 @@ namespace {
     VariableExprAST(const std::string &Name) : Name(Name) {}
   };
 
+
+  /// BinaryExprAST - Expression class for a binary operator.
   class BinaryExprAST: public ExprAST {
     char Op;
     std::unique_ptr<ExprAST> LHS, RHS;
@@ -102,6 +123,8 @@ namespace {
       : Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
   };
 
+
+  /// CallExprAST - Expression class for function calls.
   class CallExprAST: public ExprAST {
     std::string Callee;
     std::vector<std::unique_ptr<ExprAST>> Args;
@@ -112,6 +135,10 @@ namespace {
       : Callee(Callee), Args(std::move(Args)) {}
   };
 
+
+  /// PrototypeAST - This class represents the "prototype" for a function,
+  /// which captures its name, and its argument names (thus implicitly
+  /// the number of arguments the function takes).
   class PrototypeAST{
     std::string Name;
     std::vector<std::string> Args;
@@ -122,6 +149,8 @@ namespace {
     const std::string &getName() const {return Name;}
   };
 
+
+  /// FunctionAST - This class represents a function definition itself.
   class FunctionAST {
     std::unique_ptr<PrototypeAST> Proto;
     std::unique_ptr<ExprAST> Body;
@@ -138,13 +167,17 @@ namespace {
 // Parser
 //====-------====//
 
+
+/// CurTok/getNextToken - Provide a simple token buffer.
+/// CurTok is the current token the parser is looking at.
+
+
 static int CurTok;
 static int getNextToken() {return CurTok = gettok(); }
 
 static std::map<char, int> BinopPrecedence;
 
 static int GetTokPrecedence() {
-
   if(!isascii(CurTok))
     return -1;
 
