@@ -13,9 +13,9 @@
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/Transform/InstCombine/InstCombine.h"
-#include "llvm/Transform/Scalar.h"
-#include "llvm/Transform/Scalar/GVN.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -792,8 +792,8 @@ static void HandleTopLevelExpression() {
 
       // Get the symbol's address and cast it to the right type (takes no arguments,
       // returns a double) so we can call it as a native function.
-      double (*FP)() = (double (*) ()) (intptr_t)canFail(ExprSymbol.getAddress());
-      fprinf(stderr, "Evaluated to %f\n", FP());
+      double (*FP)() = (double (*) ()) (intptr_t)cantFail(ExprSymbol.getAddress());
+      fprintf(stderr, "Evaluated to %f\n", FP());
 
       // Delete the anonymous expression module from the JIT.
       TheJIT->removeModule(H);
@@ -856,7 +856,7 @@ extern "C" DLLEXPORT double printd(double x) {
 int main() {
 
   InitializeNativeTarget();
-  InitailizeNativeTargeAsmPrinter();
+  InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
 
 
